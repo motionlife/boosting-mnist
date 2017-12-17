@@ -5,15 +5,14 @@
 public class WeightedData {
     public int[] vector;
     public double weight;
-    public boolean pass;
-    public WeightedData(int[] vector, double weight, boolean pass)
-    {
+    public boolean missed;
+
+    public WeightedData(int[] vector, double weight) {
         this.vector = vector;
         this.weight = weight;
-        this.pass = pass;
     }
-    public int getLabel()
-    {
-        return  this.vector[vector.length-1];
+
+    public int getLabel() {
+        return this.vector[vector.length - 1];
     }
 }

@@ -29,27 +29,28 @@ public class Main {
         domain[label] = K;
 
         //initialize dataset
-        WeightedData[] trainset = new WeightedData[train.length];
-        for (int i = 0; i < train.length; i++) {
-            double w = 1.0 / train.length;
-            trainset[i] = new WeightedData(train[i], w, true);
+        WeightedData[] training = new WeightedData[train.length];
+        for (int i = 0; i < training.length; i++) {
+            training[i] = new WeightedData(train[i], 1.0 / training.length);
         }
 
         //boosting-SAMME
-        int M = 500;
+        int M = 700;
         ArrayList<ChowLiu> models = new ArrayList<>(M);
         for (int i = 0; i < M; i++) {
-            ChowLiu m = new ChowLiu(trainset, domain, label);
-            double e = m.error;
-            m.alpha = Math.log((1 / e - 1) * (K - 1));
-            System.out.println("error=" + e + " alpha=" + m.alpha);
-            models.add(m);
-            for (WeightedData wd : trainset) {
-                wd.weight = wd.pass ? wd.weight / (K * (1 - e)) : wd.weight * (K - 1) / (K * e);
+            //System.out.println("Sum(weight)="+Arrays.stream(training).mapToDouble(d -> d.weight).sum());
+            ChowLiu model = new ChowLiu(training, domain, label);
+            double e = model.error;
+            model.alpha = Math.log((1 / e - 1) * (K - 1));
+            System.out.println("error=" + e + " alpha=" + model.alpha);
+            models.add(model);
+            for (WeightedData wd : training) {
+                wd.weight = wd.missed ? (wd.weight * (K - 1) / (K * e)) : (wd.weight / (K * (1 - e)));
+                //IMPORTANT!!! MUST RESET MARKERS
+                wd.missed = false;
             }
             benchmark(test, models);
         }
-
 
     }
 
@@ -58,7 +59,7 @@ public class Main {
         for (int[] d : test) {
             double[] votes = new double[K];
             for (ChowLiu cl : models) {
-                votes[ChowLiu.predict(d, cl)] += cl.alpha;
+                votes[cl.predict(d)] += cl.alpha;
             }
             int winner = 0;
             for (int i = 0; i < votes.length; i++) {

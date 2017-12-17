@@ -79,7 +79,7 @@ public class Graph {
         weights[uid][vid] = weight;
     }
 
-    private double getWeight(int uid, int vid) {
+    public double getWeight(int uid, int vid) {
         if (uid > vid) {
             int k = uid;
             uid = vid;

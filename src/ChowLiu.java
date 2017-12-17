@@ -14,7 +14,6 @@ public class ChowLiu {
     private int degree;
     private double[] labelMargin;
     private HashMap<Integer, double[][]> labelPairMargin;
-    public byte[] cache;
     public double error;
     public double alpha;
 
@@ -24,14 +23,13 @@ public class ChowLiu {
         this.label = label;
         this.labelMargin = this.getMargin(label);
         this.labelPairMargin = new HashMap<>();
-        cache = new byte[Data.length];
         this.buildChowLiuTree(label + 1);
         this.error = this.errorRate();
     }
 
     private double[] getMargin(int u) {
         double result[] = new double[this.domain[u]];
-        for (WeightedData wd : this.Data) {
+        for (WeightedData wd : Data) {
             result[wd.vector[u]] += wd.weight;
         }
         return result;
@@ -39,7 +37,7 @@ public class ChowLiu {
 
     private double[][] getPairMargin(int u, int v) {
         double result[][] = new double[this.domain[u]][this.domain[v]];
-        for (WeightedData wd : this.Data) {
+        for (WeightedData wd : Data) {
             result[wd.vector[u]][wd.vector[v]] += wd.weight;
         }
         return result;
@@ -51,7 +49,7 @@ public class ChowLiu {
         double[] mv = new double[this.domain[v]];
         double[][] muv = new double[this.domain[u]][this.domain[v]];
 
-        Arrays.stream(this.Data).parallel().forEach(wd -> {
+        Arrays.stream(Data).parallel().forEach(wd -> {
             mu[wd.vector[u]] += wd.weight;
             mv[wd.vector[v]] += wd.weight;
             muv[wd.vector[u]][wd.vector[v]] += wd.weight;
@@ -87,25 +85,25 @@ public class ChowLiu {
     }
 
     private double errorRate() {
-        double err = 0;
-        for (WeightedData wd : this.Data) {
-            if (wd.getLabel() != ChowLiu.predict(wd.vector, this)) {
+        double err = 0.0;
+        for (WeightedData wd : Data) {
+            if (wd.getLabel() != predict(wd.vector)) {
                 err += wd.weight;
-                wd.pass = false;
+                wd.missed = true;
             }
         }
         return err;
     }
 
-    public static int predict(int[] x, ChowLiu model) {
-        double[] score = new double[model.labelMargin.length];
+    public int predict(int[] x) {
+        double[] score = new double[labelMargin.length];
         for (int i = 0; i < score.length; i++) {
-            double likelihood = (1 - model.degree) * Math.log(model.labelMargin[i]);
-            for (Map.Entry<Integer, double[][]> entry : model.labelPairMargin.entrySet()) {
+            double likelihood = (1 - degree) * Math.log(labelMargin[i]);
+            for (Map.Entry<Integer, double[][]> entry : labelPairMargin.entrySet()) {
                 int id = entry.getKey();
                 double[][] values = entry.getValue();
                 double p = values[x[id]][i];
-                likelihood += (p == 0 ? Math.log(values.length / (model.Data.length + values.length)) : Math.log(p));
+                likelihood += (p == 0 ? Math.log(values.length / (Data.length + values.length)) : Math.log(p));
             }
             score[i] = likelihood;
         }

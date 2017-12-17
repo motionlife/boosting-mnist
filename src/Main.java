@@ -20,27 +20,28 @@ public class Main {
         //define domain of all variables;
         int[] domain = new int[label + 1];
         for (int i = 0; i < label; i++) {
-            domain[i] = 7;
+            domain[i] = 7;// originally is 256, down scaled to 7
         }
         domain[label] = K;
 
-        //initialize weights
-        double[] W = new double[train.length];
-        for (int i = 0; i < W.length; i++) {
-            W[i] = 1.0 / train.length;
+        //initialize dataset
+        WeightedData[] trainset = new WeightedData[train.length];
+        for (int i = 0; i < train.length; i++) {
+            double w = 1.0 / train.length;
+            trainset[i] = new WeightedData(train[i], w, true);
         }
 
         //boosting-SAMME
         int M = 500;
         ArrayList<ChowLiu> models = new ArrayList<>(M);
         for (int i = 0; i < M; i++) {
-            ChowLiu m = new ChowLiu(train, domain, label, W);
+            ChowLiu m = new ChowLiu(trainset, domain, label);
             double e = m.error;
             m.alpha = Math.log((1 / e - 1) * (K - 1));
             System.out.println("error=" + e + " alpha=" + m.alpha);
             models.add(m);
-            for (int j = 0; j < train.length; j++) {
-                W[j] = m.cache[j] == 0 ? W[j] / (K * (1 - e)) : W[j] * (K - 1) / (K * e);
+            for (WeightedData wd : trainset) {
+                wd.weight = wd.pass ? wd.weight / (K * (1 - e)) : wd.weight * (K - 1) / (K * e);
             }
             benchmark(test, models);
         }

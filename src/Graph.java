@@ -9,7 +9,7 @@ import java.util.PriorityQueue;
  */
 public class Graph {
     private double[][] weights;
-    private Node[] nodes;
+    Node[] nodes;
     private int V;
 
     Graph(int V) {

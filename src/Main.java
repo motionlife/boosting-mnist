@@ -1,3 +1,7 @@
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,6 +66,29 @@ public class Main {
             }
             if (d[label] == winner) correct++;
         }
-        System.out.println("Chow-liu boosting round: " + models.size() + " Accuracy: " + correct / test.length + "\n");
+        String log = "Chow-liu boosting round: " + models.size() + " Accuracy: " + correct / test.length + "\n";
+        saveResult(log, "result.txt");
+        System.out.println(log);
+    }
+
+    /**
+     * Save the running result to file
+     */
+    private static boolean saveResult(String content, String filename) {
+        boolean success = false;
+        File file = new File(filename);
+        try {
+            if (!file.exists()) success = file.createNewFile();
+            //Here true is to append the content to file
+            FileWriter fw = new FileWriter(file, true);
+            //BufferedWriter writer give better performance
+            BufferedWriter bw = new BufferedWriter(fw);
+            bw.write(content);
+            //Closing BufferedWriter Stream
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return success;
     }
 }

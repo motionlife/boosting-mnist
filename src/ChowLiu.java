@@ -1,7 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 /**
  * Created by haoxiong on 12/14/2017.
@@ -79,32 +78,23 @@ public class ChowLiu {
         for (int i = 0; i < V; i++) {
             for (int j = i + 1; j < V; j++) {
                 //G.setWeight(i, j, -mutualInfo(i, j));
-                G.setWeight(i,j, -Math.random());
+                G.setWeight(i, j, -Math.random());
             }
         }
         System.out.println("Mutual info calculation finished");
         G.prim();
         System.out.println("Building MST finished");
+        G.printMST();
+
         //extract neighbour nodes of label node
-        ArrayList<Node> neibs = new ArrayList<>();
-        //add parent
-        Node parent = G.nodes[label].parent;
-        if (parent != null) {
-            neibs.add(parent);
-        }
-        //add all children
-        for (Node node : G.nodes) {
-            Node p = node.parent;
-            if (p != null && p.key == this.label) {
-                neibs.add(p);
-            }
-        }
+        ArrayList<Node> neibs = G.getNeighbors(label);
+
         //store pair margin
         this.degree = neibs.size();
-        System.out.println("Tree degree: "+this.degree);
+        System.out.println("Tree degree: " + this.degree);
         for (Node n : neibs) {
             labelPairMargin.put(n.id, this.getPairMargin(n.id, label));
-            System.out.print(n.id+ ",");
+            System.out.print(n.id + ",");
         }
         System.out.println();
     }

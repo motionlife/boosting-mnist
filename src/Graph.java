@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.PriorityQueue;
@@ -8,7 +9,7 @@ import java.util.PriorityQueue;
  */
 public class Graph {
     private double[][] weights;
-    Node[] nodes;
+    private Node[] nodes;
     private int V;
 
     Graph(int V) {
@@ -20,8 +21,9 @@ public class Graph {
         }
     }
 
-    void prim() {
-        PriorityQueue<Node> queue = new PriorityQueue<>(Comparator.comparingDouble(node -> node.key));
+    public void prim() {
+        //Is it necessary to use Fibonacci Heap?
+        PriorityQueue<Node> queue = new PriorityQueue<>(Comparator.comparingDouble(n -> n.key));
         queue.addAll(Arrays.asList(this.nodes));
         boolean[] marked = new boolean[this.V];
         while (!queue.isEmpty()) {
@@ -29,13 +31,43 @@ public class Graph {
             marked[u.id] = true;
             for (int i = 0; i < this.V; i++) {
                 double w = this.getWeight(u.id, i);
-                Node v = this.nodes[i];
-                if (w != 0 && !marked[i] && w < v.key) {
-                    v.parent = u;
-                    v.key = w;
+                if (w != 0) {
+                    Node v = this.nodes[i];
+                    if (!marked[i] && w < v.key) {
+                        queue.remove(v);
+                        v.parent = u;
+                        v.key = w;
+                        queue.add(v);
+                    }
                 }
             }
         }
+    }
+
+    public void printMST() {
+        for (Node u : this.nodes) {
+            Node v = u.parent;
+            if (v != null)
+                System.out.print("[" + v.id + " -> " + u.id + " : " + this.getWeight(u.id, v.id) + "]");
+        }
+
+    }
+
+    public ArrayList<Node> getNeighbors(int root) {
+        ArrayList<Node> neibs= new ArrayList<>();
+        //add parent
+        Node parent = nodes[root].parent;
+        if (parent != null) {
+            neibs.add(parent);
+        }
+        //add all children
+        for (Node node : nodes) {
+            Node p = node.parent;
+            if (p != null && p.key == root) {
+                neibs.add(p);
+            }
+        }
+        return  neibs;
     }
 
     public void setWeight(int uid, int vid, double weight) {
@@ -55,6 +87,7 @@ public class Graph {
         }
         return this.weights[uid][vid];
     }
+
 
     //Unit Test
     public static void main(String args[]) {
@@ -82,11 +115,10 @@ public class Graph {
         graph.setWeight(6, 4, 0.93);
 
         graph.prim();
-
-        for (Node u : graph.nodes) {
-            Node v = u.parent;
-            if (v != null)
-                System.out.println(u.id + " - " + v.id + " : " + graph.getWeight(u.id, v.id));
+        graph.printMST();
+        for (int i=0;i<V;i++)
+        {
+            System.out.println(graph.getNeighbors(i).size());
         }
     }
 }
@@ -99,6 +131,11 @@ class Node {
     Node(int id) {
         this.id = id;
         parent = null;
-        key = Long.MAX_VALUE;
+        key = Integer.MAX_VALUE;
+    }
+
+    @Override
+    public String toString() {
+        return "[Node:" + this.id + ", Key:" + key + ", Parent:" + (parent == null ? "Null" : parent.toString()) + "]";
     }
 }

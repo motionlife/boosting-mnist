@@ -7,18 +7,18 @@ import java.util.Map;
  * Copyright belongs to haoxiong, Email: haoxiong@outlook.com
  */
 public class ChowLiu {
-    public int[][] data;
-    public int[] domain;
-    public int label;
-    public int degree;
-    public double[] weight;
-    public double[] labelMargin;
-    public HashMap<Integer, double[][]> labelPairMargin;
+    private int[][] data;
+    private int[] domain;
+    private int label;
+    private int degree;
+    private double[] weight;
+    private double[] labelMargin;
+    private HashMap<Integer, double[][]> labelPairMargin;
     public byte[] cache;
     public double error;
     public double alpha;
 
-    public ChowLiu(int[][] data, int[] domain, int label, double[] weight) {
+    ChowLiu(int[][] data, int[] domain, int label, double[] weight) {
         this.data = data;
         this.domain = domain;
         this.label = label;
@@ -74,29 +74,24 @@ public class ChowLiu {
     private void buildChowLiuTree(int V) {
         System.out.println("Calculate mutual info begins...");
         Graph G = new Graph(V);
-        //the slowest process is here, try to optimize java stream parallelism
+        //todo: the slowest process is here, try to optimize java stream parallelism
+        double[][] mutalInfo = new double[V][V];
+
         for (int i = 0; i < V; i++) {
             for (int j = i + 1; j < V; j++) {
-                //G.setWeight(i, j, -mutualInfo(i, j));
-                G.setWeight(i, j, -Math.random());
+                G.setWeight(i, j, -mutualInfo(i, j));
             }
         }
         System.out.println("Mutual info calculation finished");
         G.prim();
-        System.out.println("Building MST finished");
-        G.printMST();
 
         //extract neighbour nodes of label node
         ArrayList<Node> neibs = G.getNeighbors(label);
-
         //store pair margin
         this.degree = neibs.size();
-        System.out.println("Tree degree: " + this.degree);
         for (Node n : neibs) {
             labelPairMargin.put(n.id, this.getPairMargin(n.id, label));
-            System.out.print(n.id + ",");
         }
-        System.out.println();
     }
 
     private double errorRate() {
@@ -119,14 +114,14 @@ public class ChowLiu {
                 int id = entry.getKey();
                 double[][] values = entry.getValue();
                 double p = values[x[id]][i];
-                likelihood += p == 0 ? Math.log(values.length / (model.data.length + values.length)) : Math.log(p);
+                likelihood += (p == 0 ? Math.log(values.length / (model.data.length + values.length)) : Math.log(p));
             }
             score[i] = likelihood;
         }
 
         int result = 0;
         for (int i = 0; i < score.length; i++) {
-            result = score[i] > score[result] ? i : result;
+            result = (score[i] > score[result] ? i : result);
         }
         return result;
     }

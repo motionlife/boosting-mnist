@@ -3,9 +3,8 @@ import java.util.List;
 
 public class Main {
 
-    static int K;
-    static int label;
-    static int[] domain;
+    private static int K;
+    private static int label;
 
     public static void main(String[] args) {
 
@@ -19,7 +18,7 @@ public class Main {
         label = 784;
         K = 10;
         //define domain of all variables;
-        domain = new int[label + 1];
+        int[] domain = new int[label + 1];
         for (int i = 0; i < label; i++) {
             domain[i] = 7;
         }
@@ -32,7 +31,7 @@ public class Main {
         }
 
         //boosting-SAMME
-        int M = 100;
+        int M = 500;
         ArrayList<ChowLiu> models = new ArrayList<>(M);
         for (int i = 0; i < M; i++) {
             ChowLiu m = new ChowLiu(train, domain, label, W);
@@ -58,7 +57,7 @@ public class Main {
             }
             int winner = 0;
             for (int i = 0; i < votes.length; i++) {
-                winner = votes[i] > votes[winner] ? i : winner;
+                winner = (votes[i] > votes[winner] ? i : winner);
             }
             if (d[label] == winner) correct++;
         }

@@ -23,6 +23,7 @@ public class Graph {
 
     public void prim() {
         //Is it necessary to use Fibonacci Heap?
+        // FibonacciHeap<Node> heap = new FibonacciHeap<>();
         PriorityQueue<Node> queue = new PriorityQueue<>(Comparator.comparingDouble(n -> n.key));
         queue.addAll(Arrays.asList(this.nodes));
         boolean[] marked = new boolean[this.V];
@@ -50,11 +51,11 @@ public class Graph {
             if (v != null)
                 System.out.print("[" + v.id + " -> " + u.id + " : " + this.getWeight(u.id, v.id) + "]");
         }
-
+        System.out.println();
     }
 
     public ArrayList<Node> getNeighbors(int root) {
-        ArrayList<Node> neibs= new ArrayList<>();
+        ArrayList<Node> neibs = new ArrayList<>();
         //add parent
         Node parent = nodes[root].parent;
         if (parent != null) {
@@ -62,12 +63,11 @@ public class Graph {
         }
         //add all children
         for (Node node : nodes) {
-            Node p = node.parent;
-            if (p != null && p.key == root) {
-                neibs.add(p);
+            if (node.parent != null && node.parent.id == root) {
+                neibs.add(node);
             }
         }
-        return  neibs;
+        return neibs;
     }
 
     public void setWeight(int uid, int vid, double weight) {
@@ -94,30 +94,29 @@ public class Graph {
         int V = 8;
         Graph graph = new Graph(V);
 
-        graph.setWeight(0, 7, 0.16);
-        graph.setWeight(2, 3, 0.17);
-        graph.setWeight(1, 7, 0.19);
-        graph.setWeight(0, 2, 0.26);
+        graph.setWeight(0, 7, -0.16);
+        graph.setWeight(2, 3, -0.17);
+        graph.setWeight(1, 7, -0.19);
+        graph.setWeight(0, 2, -0.26);
 
-        graph.setWeight(5, 7, 0.28);
-        graph.setWeight(1, 3, 0.29);
-        graph.setWeight(1, 5, 0.32);
-        graph.setWeight(2, 7, 0.34);
+        graph.setWeight(5, 7, -0.28);
+        graph.setWeight(1, 3, -0.29);
+        graph.setWeight(1, 5, -0.32);
+        graph.setWeight(2, 7, -0.34);
 
-        graph.setWeight(4, 5, 0.35);
-        graph.setWeight(1, 2, 0.36);
-        graph.setWeight(4, 7, 0.37);
-        graph.setWeight(0, 4, 0.38);
+        graph.setWeight(4, 5, -0.35);
+        graph.setWeight(1, 2, -0.36);
+        graph.setWeight(4, 7, -0.37);
+        graph.setWeight(0, 4, -0.38);
 
-        graph.setWeight(6, 2, 0.40);
-        graph.setWeight(3, 6, 0.52);
-        graph.setWeight(6, 0, 0.58);
-        graph.setWeight(6, 4, 0.93);
+        graph.setWeight(6, 2, -0.40);
+        graph.setWeight(3, 6, -0.52);
+        graph.setWeight(6, 0, -0.58);
+        graph.setWeight(6, 4, -0.93);
 
         graph.prim();
         graph.printMST();
-        for (int i=0;i<V;i++)
-        {
+        for (int i = 0; i < V; i++) {
             System.out.println(graph.getNeighbors(i).size());
         }
     }

@@ -49,11 +49,11 @@ public class ChowLiu {
         double[] mv = new double[this.domain[v]];
         double[][] muv = new double[this.domain[u]][this.domain[v]];
 
-        Arrays.stream(Data).parallel().forEach(wd -> {
+        for (WeightedData wd : Data) {
             mu[wd.vector[u]] += wd.weight;
             mv[wd.vector[v]] += wd.weight;
             muv[wd.vector[u]][wd.vector[v]] += wd.weight;
-        });
+        }
 
         for (int i = 0; i < mu.length; i++) {
             for (int j = 0; j < mv.length; j++) {

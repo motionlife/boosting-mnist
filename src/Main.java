@@ -12,10 +12,10 @@ public class Main {
 
     public static void main(String[] args) {
 
-        int[] train_labels = MnistReader.getLabels("../data/MNIST/train-labels-idx1-ubyte");
-        List<int[][]> train_imgs = MnistReader.getImages("../data/MNIST/train-images-idx3-ubyte");
-        int[] test_labels = MnistReader.getLabels("../data/MNIST/t10k-labels-idx1-ubyte");
-        List<int[][]> test_imgs = MnistReader.getImages("../data/MNIST/t10k-images-idx3-ubyte");
+        int[] train_labels = MnistReader.getLabels("data/MNIST/train-labels-idx1-ubyte");
+        List<int[][]> train_imgs = MnistReader.getImages("data/MNIST/train-images-idx3-ubyte");
+        int[] test_labels = MnistReader.getLabels("data/MNIST/t10k-labels-idx1-ubyte");
+        List<int[][]> test_imgs = MnistReader.getImages("data/MNIST/t10k-images-idx3-ubyte");
         int[][] train = MnistReader.toVectors(train_imgs, train_labels);
         int[][] test = MnistReader.toVectors(test_imgs, test_labels);
 

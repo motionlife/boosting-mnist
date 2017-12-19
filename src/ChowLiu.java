@@ -45,20 +45,21 @@ public class ChowLiu {
 
     private double mutualInfo(int u, int v) {
         double info = 0;
-        double[] mu = new double[this.domain[u]];
-        double[] mv = new double[this.domain[v]];
-        double[][] muv = new double[this.domain[u]][this.domain[v]];
+        double[] pu = new double[this.domain[u]];
+        double[] pv = new double[this.domain[v]];
+        double[][] puv = new double[this.domain[u]][this.domain[v]];
 
         for (WeightedData wd : Data) {
-            mu[wd.vector[u]] += wd.weight;
-            mv[wd.vector[v]] += wd.weight;
-            muv[wd.vector[u]][wd.vector[v]] += wd.weight;
+            pu[wd.vector[u]] += wd.weight;
+            pv[wd.vector[v]] += wd.weight;
+            puv[wd.vector[u]][wd.vector[v]] += wd.weight;
         }
 
-        for (int i = 0; i < mu.length; i++) {
-            for (int j = 0; j < mv.length; j++) {
-                double puv = muv[i][j];
-                info += puv * (Math.log(puv) - Math.log(mu[i]) - Math.log(mv[j]));
+        for (int i = 0; i < pu.length; i++) {
+            for (int j = 0; j < pv.length; j++) {
+                double p = puv[i][j];
+                if (p == 0 || pu[i] == 0 || pv[j] == 0) continue;
+                info += p * (Math.log(p) - Math.log(pu[i]) - Math.log(pv[j]));
             }
         }
         return info;
@@ -74,12 +75,12 @@ public class ChowLiu {
                         .forEach(v -> G.setWeight(u.id, v.id, -mutualInfo(u.id, v.id))));
         System.out.println("Mutual info calculation finished");
         G.prim();
-
         //extract neighbour nodes of label node
-        ArrayList<Node> neibs = G.getNeighbors(label);
+        ArrayList<Node> neighbours = G.getNeighbors(label);
         //store pair margin
-        this.degree = neibs.size();
-        for (Node n : neibs) {
+        degree = neighbours.size();
+        System.out.println("Tree degree=" + degree);
+        for (Node n : neighbours) {
             labelPairMargin.put(n.id, this.getPairMargin(n.id, label));
         }
     }

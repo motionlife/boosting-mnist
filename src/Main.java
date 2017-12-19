@@ -12,10 +12,10 @@ public class Main {
 
     public static void main(String[] args) {
 
-        int[] train_labels = MnistReader.getLabels("data/MNIST/train-labels-idx1-ubyte");
-        List<int[][]> train_imgs = MnistReader.getImages("data/MNIST/train-images-idx3-ubyte");
-        int[] test_labels = MnistReader.getLabels("data/MNIST/t10k-labels-idx1-ubyte");
-        List<int[][]> test_imgs = MnistReader.getImages("data/MNIST/t10k-images-idx3-ubyte");
+        int[] train_labels = MnistReader.getLabels("../data/MNIST/train-labels-idx1-ubyte");
+        List<int[][]> train_imgs = MnistReader.getImages("../data/MNIST/train-images-idx3-ubyte");
+        int[] test_labels = MnistReader.getLabels("../data/MNIST/t10k-labels-idx1-ubyte");
+        List<int[][]> test_imgs = MnistReader.getImages("../data/MNIST/t10k-images-idx3-ubyte");
         int[][] train = MnistReader.toVectors(train_imgs, train_labels);
         int[][] test = MnistReader.toVectors(test_imgs, test_labels);
 
@@ -24,7 +24,7 @@ public class Main {
         //define domain of all variables;
         int[] domain = new int[label + 1];
         for (int i = 0; i < label; i++) {
-            domain[i] = 7;// originally is 256, down scaled to 7
+            domain[i] = 7;// originally is 256, down re-scaled to 7
         }
         domain[label] = K;
 
@@ -35,14 +35,14 @@ public class Main {
         }
 
         //boosting-SAMME
-        int M = 700;
+        int M = 1000;
         ArrayList<ChowLiu> models = new ArrayList<>(M);
         for (int i = 0; i < M; i++) {
             //System.out.println("Sum(weight)="+Arrays.stream(training).mapToDouble(d -> d.weight).sum());
             ChowLiu model = new ChowLiu(training, domain, label);
             double e = model.error;
             model.alpha = Math.log((1 / e - 1) * (K - 1));
-            System.out.println("error=" + e + " alpha=" + model.alpha);
+            saveResult("error=" + e + ", alpha=" + model.alpha,"result.txt");
             models.add(model);
             for (WeightedData wd : training) {
                 wd.weight = wd.missed ? (wd.weight * (K - 1) / (K * e)) : (wd.weight / (K * (1 - e)));
@@ -69,13 +69,13 @@ public class Main {
         }
         String log = "Chow-liu boosting round: " + models.size() + " Accuracy: " + correct / test.length + "\n";
         saveResult(log, "result.txt");
-        System.out.println(log);
     }
 
     /**
      * Save the running result to file
      */
     private static boolean saveResult(String content, String filename) {
+        System.out.println(content);
         boolean success = false;
         File file = new File(filename);
         try {

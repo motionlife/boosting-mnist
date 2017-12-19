@@ -24,7 +24,7 @@ public class Main {
         //define domain of all variables;
         int[] domain = new int[label + 1];
         for (int i = 0; i < label; i++) {
-            domain[i] = 7;// originally is 256, down re-scaled to 7
+            domain[i] = 255;// originally is 256, down re-scaled to 7
         }
         domain[label] = K;
 

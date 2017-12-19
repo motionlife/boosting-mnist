@@ -127,7 +127,8 @@ public class MnistReader {
             for (int j = 0; j < dim; j++) {
                 for (int k = 0; k < dim; k++) {
                     int scale = img[j][k];
-                    result[i][dim * j + k] = scale == 0 ? 0 : (scale < 7 ? 1 : (scale < 17 ? 2 : (scale < 47 ? 3 : (scale < 107 ? 4 : (scale < 197 ? 5 : 6)))));
+                    //result[i][dim * j + k] = scale == 0 ? 0 : (scale < 7 ? 1 : (scale < 17 ? 2 : (scale < 47 ? 3 : (scale < 107 ? 4 : (scale < 197 ? 5 : 6)))));
+                    result[i][dim * j + k] = scale;
                 }
             }
             result[i][vlen - 1] = lables[i];

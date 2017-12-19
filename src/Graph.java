@@ -25,6 +25,7 @@ public class Graph {
         //Is it necessary to use Fibonacci Heap?
         // FibonacciHeap<Node> heap = new FibonacciHeap<>();
         PriorityQueue<Node> queue = new PriorityQueue<>(Comparator.comparingDouble(n -> n.key));
+        nodes[V-1].key = -Integer.MAX_VALUE;
         queue.addAll(Arrays.asList(this.nodes));
         boolean[] marked = new boolean[this.V];
         while (!queue.isEmpty()) {

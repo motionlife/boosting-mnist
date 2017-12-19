@@ -59,7 +59,7 @@ public class ChowLiu {
             for (int j = 0; j < pv.length; j++) {
                 double p = puv[i][j];
                 if (p == 0 || pu[i] == 0 || pv[j] == 0) continue;
-                info += p * (Math.log(p) - Math.log(pu[i]) - Math.log(pv[j]));
+                info += p * Math.log(p / (pu[i] * pv[j]));
             }
         }
         return info;
@@ -70,7 +70,7 @@ public class ChowLiu {
         Graph G = new Graph(V);
         //todo: the slowest process is here, try to optimize java stream parallelism
         Arrays.stream(G.nodes).parallel()
-                .forEach(u -> Arrays.stream(G.nodes)
+                .forEach(u -> Arrays.stream(G.nodes).parallel()
                         .filter(v -> u.id < v.id)
                         .forEach(v -> G.setWeight(u.id, v.id, -mutualInfo(u.id, v.id))));
         System.out.println("Mutual info calculation finished");

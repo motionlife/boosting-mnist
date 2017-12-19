@@ -67,7 +67,7 @@ public class Main {
             }
             if (d[label] == winner) correct++;
         }
-        String log = "Chow-liu boosting round: " + models.size() + " Accuracy: " + correct / test.length + "\n";
+        String log = "Chow-liu boosting round: " + models.size() + ", Accuracy: " + correct / test.length + "\n";
         saveResult(log, "result.txt");
     }
 

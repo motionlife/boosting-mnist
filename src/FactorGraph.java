@@ -22,15 +22,15 @@ public class FactorGraph {
         this.domain = domain;
         this.label = label;
         this.degree = degree;
-        this.f_size = f;
-        this.labelMargin = this.getMargin(label);
+        f_size = f;
+        labelMargin = getMargin(label);
 
 
-        this.error = this.errorRate();
+        error = errorRate();
     }
 
     private double[] getMargin(int u) {
-        double result[] = new double[this.domain[u]];
+        double result[] = new double[domain[u]];
         for (WeightedData wd : Data) {
             result[wd.vector[u]] += wd.weight;
         }
@@ -78,12 +78,12 @@ class Factor {
     }
     @Override
     public int hashCode() {
-        return this.toString().hashCode();
+        return toString().hashCode();
     }
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof Factor && obj.toString().equals(this.toString());
+        return obj instanceof Factor && obj.toString().equals(toString());
     }
 
     @Override

@@ -21,14 +21,14 @@ public class ChowLiu {
         this.Data = Data;
         this.domain = domain;
         this.label = label;
-        this.labelMargin = this.getMargin(label);
-        this.labelPairMargin = new HashMap<>();
-        this.buildChowLiuTree(label + 1);
-        this.error = this.errorRate();
+        labelMargin = getMargin(label);
+        labelPairMargin = new HashMap<>();
+        buildChowLiuTree(label + 1);
+        error = errorRate();
     }
 
     private double[] getMargin(int u) {
-        double result[] = new double[this.domain[u]];
+        double result[] = new double[domain[u]];
         for (WeightedData wd : Data) {
             result[wd.vector[u]] += wd.weight;
         }
@@ -36,7 +36,7 @@ public class ChowLiu {
     }
 
     private double[][] getPairMargin(int u, int v) {
-        double result[][] = new double[this.domain[u]][this.domain[v]];
+        double result[][] = new double[domain[u]][domain[v]];
         for (WeightedData wd : Data) {
             result[wd.vector[u]][wd.vector[v]] += wd.weight;
         }
@@ -45,9 +45,9 @@ public class ChowLiu {
 
     private double mutualInfo(int u, int v) {
         double info = 0;
-        double[] pu = new double[this.domain[u]];
-        double[] pv = new double[this.domain[v]];
-        double[][] puv = new double[this.domain[u]][this.domain[v]];
+        double[] pu = new double[domain[u]];
+        double[] pv = new double[domain[v]];
+        double[][] puv = new double[domain[u]][domain[v]];
 
         for (WeightedData wd : Data) {
             pu[wd.vector[u]] += wd.weight;
@@ -58,8 +58,7 @@ public class ChowLiu {
         for (int i = 0; i < pu.length; i++) {
             for (int j = 0; j < pv.length; j++) {
                 double p = puv[i][j];
-                if (p == 0 || pu[i] == 0 || pv[j] == 0) continue;
-                info += p * Math.log(p / (pu[i] * pv[j]));
+                if (p != 0) info += p * Math.log(p / (pu[i] * pv[j]));
             }
         }
         return info;
@@ -81,7 +80,7 @@ public class ChowLiu {
         degree = neighbours.size();
         System.out.println("Tree degree=" + degree);
         for (Node n : neighbours) {
-            labelPairMargin.put(n.id, this.getPairMargin(n.id, label));
+            labelPairMargin.put(n.id, getPairMargin(n.id, label));
         }
     }
 

@@ -43,7 +43,7 @@ public class Main {
         for (int i = 0; i < M; i++) {
             //System.out.println("Sum(weight)="+Arrays.stream(training).mapToDouble(d -> d.weight).sum());
             //ChowLiu model = new ChowLiu(training, domain, label);
-            FactorGraph model = new FactorGraph(training, domain, label, 9, 9);
+            FactorGraph model = new FactorGraph(training, domain, label, 11, 11);
             double e = model.error;
             model.alpha = Math.log((1 / e - 1) * (K - 1));
             saveResult("error=" + e + ", alpha=" + model.alpha, "result.txt");

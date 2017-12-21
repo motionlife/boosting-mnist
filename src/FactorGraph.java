@@ -1,6 +1,4 @@
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by haoxiong on 12/18/2017.
@@ -9,11 +7,12 @@ import java.util.Map;
 public class FactorGraph {
     private WeightedData[] Data;
     private int[] domain;
+    private int[][] neighbours;
     private int label;
     private int degree;
     private int f_size;
     private double[] labelMargin;
-    private HashMap<Integer, double[][]> labelPairMargin;
+    private List<HashMap<List<Integer>, Double>> labelPairMargin;
     public double error;
     public double alpha;
 
@@ -22,11 +21,11 @@ public class FactorGraph {
         this.domain = domain;
         this.label = label;
         this.degree = degree;
-        f_size = f;
-        labelMargin = getMargin(label);
-
-
-        error = errorRate();
+        this.f_size = f;
+        this.labelMargin = getMargin(label);
+        this.neighbours = getNeighbours();
+        this.labelPairMargin = getLabelPairMargin();
+        this.error = errorRate();
     }
 
     private double[] getMargin(int u) {
@@ -35,6 +34,26 @@ public class FactorGraph {
             result[wd.vector[u]] += wd.weight;
         }
         return result;
+    }
+
+    private List<HashMap<List<Integer>, Double>> getLabelPairMargin() {
+        List<HashMap<List<Integer>, Double>> dist = new ArrayList<>();
+        for (int[] ignored : neighbours) {
+            dist.add(new HashMap<>());
+        }
+        Arrays.stream(Data).forEach(wd -> {
+            for (int i = 0; i < neighbours.length; i++) {
+                List<Integer> dom = new ArrayList<>();
+                for (int n : neighbours[i]) {
+                    dom.add(wd.vector[n]);
+                }
+                dom.add(wd.vector[label]);
+                HashMap<List<Integer>, Double> d = dist.get(i);
+                Double v = d.get(dom);
+                d.put(dom, v == null ? wd.weight : v + wd.weight);
+            }
+        });
+        return dist;
     }
 
     private double errorRate() {
@@ -52,11 +71,15 @@ public class FactorGraph {
         double[] score = new double[labelMargin.length];
         for (int i = 0; i < score.length; i++) {
             double likelihood = (1 - degree) * Math.log(labelMargin[i]);
-            for (Map.Entry<Integer, double[][]> entry : labelPairMargin.entrySet()) {
-                int id = entry.getKey();
-                double[][] values = entry.getValue();
-                double p = values[x[id]][i];
-                likelihood += (p == 0 ? Math.log(values.length / (Data.length + values.length)) : Math.log(p));
+            for (int j = 0; j < neighbours.length; j++) {
+                HashMap<List<Integer>, Double> dist = labelPairMargin.get(j);
+                List<Integer> dom = new ArrayList<>();
+                for (int n : neighbours[j]) {
+                    dom.add(x[n]);
+                }
+                dom.add(i);
+                Double v = dist.get(dom);
+                likelihood += v == null ? Math.log(dist.size() / (dist.size() + Data.length)) : Math.log(v);
             }
             score[i] = likelihood;
         }
@@ -67,27 +90,23 @@ public class FactorGraph {
         }
         return result;
     }
-}
 
-class Factor {
-    int[] nodes;
 
-    Factor(int size)
-    {
-        nodes = new int[size];
-    }
-    @Override
-    public int hashCode() {
-        return toString().hashCode();
-    }
+    private int[][] getNeighbours() {
+        int[][] nb = new int[degree][f_size];
+        Random rand = new Random();
+        List<Integer> nodes = new ArrayList<>(label);
+        for (int i = 0; i < label; i++) {
+            nodes.add(i);
+        }
+        for (int i = 0; i < degree; i++) {
+            for (int j = 0; j < f_size; j++) {
+                int randomIndex = rand.nextInt(nodes.size());//out-of-bounds
+                nb[i][j] = nodes.get(randomIndex);
+                nodes.remove(randomIndex);
+            }
+        }
 
-    @Override
-    public boolean equals(Object obj) {
-        return obj instanceof Factor && obj.toString().equals(toString());
-    }
-
-    @Override
-    public String toString() {
-        return String.join(",", (CharSequence) Arrays.asList(nodes));
+        return nb;
     }
 }

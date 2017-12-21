@@ -3,12 +3,14 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Main {
 
     private static int K;
     private static int label;
+    private double correct;
 
     public static void main(String[] args) {
 
@@ -24,7 +26,7 @@ public class Main {
         //define domain of all variables;
         int[] domain = new int[label + 1];
         for (int i = 0; i < label; i++) {
-            domain[i] = 256;
+            domain[i] = 2;
         }
         domain[label] = K;
 
@@ -35,40 +37,45 @@ public class Main {
         }
 
         //boosting-SAMME
+        Main profile = new Main();
         int M = 1000;
-        ArrayList<ChowLiu> models = new ArrayList<>(M);
+        ArrayList<FactorGraph> models = new ArrayList<>(M);
         for (int i = 0; i < M; i++) {
             //System.out.println("Sum(weight)="+Arrays.stream(training).mapToDouble(d -> d.weight).sum());
-            ChowLiu model = new ChowLiu(training, domain, label);
+            //ChowLiu model = new ChowLiu(training, domain, label);
+            FactorGraph model = new FactorGraph(training, domain, label, 9, 9);
             double e = model.error;
             model.alpha = Math.log((1 / e - 1) * (K - 1));
-            saveResult("error=" + e + ", alpha=" + model.alpha,"result.txt");
+            saveResult("error=" + e + ", alpha=" + model.alpha, "result.txt");
             models.add(model);
             for (WeightedData wd : training) {
                 wd.weight = wd.missed ? (wd.weight * (K - 1) / (K * e)) : (wd.weight / (K * (1 - e)));
                 //IMPORTANT!!! MUST RESET MARKERS
                 wd.missed = false;
             }
-            benchmark(test, models);
+            profile.benchmark(test, models);
         }
 
     }
 
-    private static void benchmark(int[][] test, ArrayList<ChowLiu> models) {
-        double correct = 0;
-        for (int[] d : test) {
+    private void benchmark(int[][] test, ArrayList<FactorGraph> models) {
+        correct = 0;
+        Arrays.stream(test).parallel().forEach(d->{
             double[] votes = new double[K];
-            for (ChowLiu cl : models) {
+            for (FactorGraph cl : models) {
                 votes[cl.predict(d)] += cl.alpha;
             }
             int winner = 0;
             for (int i = 0; i < votes.length; i++) {
                 winner = (votes[i] > votes[winner] ? i : winner);
             }
-            if (d[label] == winner) correct++;
-        }
-        String log = "Chow-liu boosting round: " + models.size() + ", Accuracy: " + correct / test.length + "\n";
+            synchronized (this){
+                if (d[label] == winner) correct++;
+            }
+        });
+        String log = "Boosting round: " + models.size() + ", Accuracy: " + correct / test.length + "\n";
         saveResult(log, "result.txt");
+        correct = 0;
     }
 
     /**

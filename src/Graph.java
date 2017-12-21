@@ -47,12 +47,16 @@ public class Graph {
     }
 
     public void printMST() {
+        //double t = 0;
         for (Node u : this.nodes) {
             Node v = u.parent;
-            if (v != null)
+            if (v != null){
                 System.out.print("[" + v.id + " -> " + u.id + " : " + this.getWeight(u.id, v.id) + "]");
+                //t+=this.getWeight(u.id,v.id);
+            }
         }
         System.out.println();
+        //System.out.println("Total Weight="+t);
     }
 
     public ArrayList<Node> getNeighbors(int root) {
@@ -92,28 +96,25 @@ public class Graph {
 
     //Unit Test
     public static void main(String args[]) {
-        int V = 8;
+        int V = 9;
         Graph graph = new Graph(V);
+        graph.setWeight(0,1,4);
+        graph.setWeight(1,2,8);
+        graph.setWeight(2,3,7);
+        graph.setWeight(3,4,9);
+        graph.setWeight(4,5,10);
+        graph.setWeight(5,6,2);
+        graph.setWeight(6,7,1);
+        graph.setWeight(7,0,8);
+        graph.setWeight(1,7,11);
+        graph.setWeight(7,8,7);
+        graph.setWeight(2,8,2);
+        graph.setWeight(6,8,6);
+        graph.setWeight(2,5,4);
+        graph.setWeight(5,3,14);
 
-        graph.setWeight(0, 7, -0.16);
-        graph.setWeight(2, 3, -0.17);
-        graph.setWeight(1, 7, -0.19);
-        graph.setWeight(0, 2, -0.26);
 
-        graph.setWeight(5, 7, -0.28);
-        graph.setWeight(1, 3, -0.29);
-        graph.setWeight(1, 5, -0.32);
-        graph.setWeight(2, 7, -0.34);
 
-        graph.setWeight(4, 5, -0.35);
-        graph.setWeight(1, 2, -0.36);
-        graph.setWeight(4, 7, -0.37);
-        graph.setWeight(0, 4, -0.38);
-
-        graph.setWeight(6, 2, -0.40);
-        graph.setWeight(3, 6, -0.52);
-        graph.setWeight(6, 0, -0.58);
-        graph.setWeight(6, 4, -0.93);
 
         graph.prim();
         graph.printMST();

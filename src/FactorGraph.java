@@ -12,7 +12,7 @@ public class FactorGraph {
     private int degree;
     private int f_size;
     private double[] labelMargin;
-    private List<HashMap<List<Integer>, Double>> labelPairMargin;
+    private HashMap<List<Integer>, Double>[] labelPairMargin;
     public double error;
     public double alpha;
 
@@ -36,10 +36,10 @@ public class FactorGraph {
         return result;
     }
 
-    private List<HashMap<List<Integer>, Double>> getLabelPairMargin() {
-        List<HashMap<List<Integer>, Double>> dist = new ArrayList<>();
-        for (int[] ignored : neighbours) {
-            dist.add(new HashMap<>());
+    private HashMap<List<Integer>, Double>[] getLabelPairMargin() {
+        HashMap<List<Integer>, Double>[] dist = new HashMap[degree];
+        for (int i = 0; i < degree; i++) {
+            dist[i] = new HashMap<>();
         }
         Arrays.stream(Data).forEach(wd -> {
             for (int i = 0; i < neighbours.length; i++) {
@@ -48,9 +48,8 @@ public class FactorGraph {
                     dom.add(wd.vector[n]);
                 }
                 dom.add(wd.vector[label]);
-                HashMap<List<Integer>, Double> d = dist.get(i);
-                Double v = d.get(dom);
-                d.put(dom, v == null ? wd.weight : v + wd.weight);
+                Double v = dist[i].get(dom);
+                dist[i].put(dom, v == null ? wd.weight : v + wd.weight);
             }
         });
         return dist;
@@ -72,7 +71,7 @@ public class FactorGraph {
         for (int i = 0; i < score.length; i++) {
             double likelihood = (1 - degree) * Math.log(labelMargin[i]);
             for (int j = 0; j < neighbours.length; j++) {
-                HashMap<List<Integer>, Double> dist = labelPairMargin.get(j);
+                HashMap<List<Integer>, Double> dist = labelPairMargin[j];
                 List<Integer> dom = new ArrayList<>();
                 for (int n : neighbours[j]) {
                     dom.add(x[n]);

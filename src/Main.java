@@ -2,9 +2,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class Main {
 
@@ -31,9 +29,9 @@ public class Main {
         domain[label] = K;
 
         //initialize dataset
-        WeightedData[] training = new WeightedData[train.length];
-        for (int i = 0; i < training.length; i++) {
-            training[i] = new WeightedData(train[i], 1.0 / training.length);
+        WeightedData[] dataset = new WeightedData[train.length];
+        for (int i = 0; i < dataset.length; i++) {
+            dataset[i] = new WeightedData(train[i], 1.0 / dataset.length);
         }
 
         //boosting-SAMME
@@ -43,12 +41,12 @@ public class Main {
         for (int i = 0; i < M; i++) {
             //System.out.println("Sum(weight)="+Arrays.stream(training).mapToDouble(d -> d.weight).sum());
             //ChowLiu model = new ChowLiu(training, domain, label);
-            FactorGraph model = new FactorGraph(training, domain, label, 11, 11);
+            FactorGraph model = new FactorGraph(dataset, domain, label, 11, 11);
             double e = model.error;
             model.alpha = Math.log((1 / e - 1) * (K - 1));
-            saveResult("error=" + e + ", alpha=" + model.alpha, "result.txt");
+            saveResult("error=" + e + ", alpha=" + model.alpha);
             models.add(model);
-            for (WeightedData wd : training) {
+            for (WeightedData wd : dataset) {
                 wd.weight = wd.missed ? (wd.weight * (K - 1) / (K * e)) : (wd.weight / (K * (1 - e)));
                 //IMPORTANT!!! MUST RESET MARKERS
                 wd.missed = false;
@@ -74,17 +72,17 @@ public class Main {
             }
         });
         String log = "Boosting round: " + models.size() + ", Accuracy: " + correct / test.length + "\n";
-        saveResult(log, "result.txt");
+        saveResult(log);
         correct = 0;
     }
 
     /**
      * Save the running result to file
      */
-    private static boolean saveResult(String content, String filename) {
+    private static boolean saveResult(String content) {
         System.out.println(content);
         boolean success = false;
-        File file = new File(filename);
+        File file = new File("result.txt");
         try {
             if (!file.exists()) success = file.createNewFile();
             //Here true is to append the content to file

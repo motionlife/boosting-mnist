@@ -1,3 +1,4 @@
+
 import java.util.*;
 
 /**
@@ -6,26 +7,31 @@ import java.util.*;
  */
 public class FactorGraph {
     private WeightedData[] Data;
-    private int[] domain;
-    private int[][] neighbours;
+    private byte[] domain;
+    private int[][] factors;
     private int label;
     private int degree;
-    private int f_size;
+    private int leaf;
     private double[] labelMargin;
-    private HashMap<List<Integer>, Double>[] labelPairMargin;
+    private HashMap[] labelPairMargin;
     public double error;
     public double alpha;
 
-    FactorGraph(WeightedData[] Data, int[] domain, int label, int degree, int f) {
-        this.Data = Data;
-        this.domain = domain;
-        this.label = label;
-        this.degree = degree;
-        this.f_size = f;
-        this.labelMargin = getMargin(label);
-        this.neighbours = getNeighbours();
-        this.labelPairMargin = getLabelPairMargin();
-        this.error = errorRate();
+    FactorGraph(WeightedData[] Data, byte[] domain, int label, int degree, int leaf, boolean discrete) {
+        if (discrete) {
+            this.Data = Data;
+            this.domain = domain;
+            this.label = label;
+            this.degree = degree;
+            this.leaf = leaf;
+            this.factors = getFactors();
+            this.labelMargin = getMargin(label);
+            this.labelPairMargin = getLabelPairMargin();
+            this.error = errorRate();
+        } else {
+            // consider continuous distribution
+
+        }
     }
 
     private double[] getMargin(int u) {
@@ -36,19 +42,19 @@ public class FactorGraph {
         return result;
     }
 
-    private HashMap<List<Integer>, Double>[] getLabelPairMargin() {
-        HashMap<List<Integer>, Double>[] dist = new HashMap[degree];
+    private HashMap[] getLabelPairMargin() {
+        HashMap[] dist = new HashMap[degree];
         for (int i = 0; i < degree; i++) {
-            dist[i] = new HashMap<>();
+            dist[i] = new HashMap<List<Byte>, Double>();
         }
         Arrays.stream(Data).forEach(wd -> {
-            for (int i = 0; i < neighbours.length; i++) {
-                List<Integer> dom = new ArrayList<>();
-                for (int n : neighbours[i]) {
+            for (int i = 0; i < factors.length; i++) {
+                List<Byte> dom = new ArrayList<>();
+                for (int n : factors[i]) {
                     dom.add(wd.vector[n]);
                 }
                 dom.add(wd.vector[label]);
-                Double v = dist[i].get(dom);
+                Double v = (Double) dist[i].get(dom);
                 dist[i].put(dom, v == null ? wd.weight : v + wd.weight);
             }
         });
@@ -56,28 +62,23 @@ public class FactorGraph {
     }
 
     private double errorRate() {
-        double err = 0.0;
-        for (WeightedData wd : Data) {
-            if (wd.getLabel() != predict(wd.vector)) {
-                err += wd.weight;
-                wd.missed = true;
-            }
-        }
-        return err;
+        Arrays.stream(Data).parallel().forEach(wd -> wd.missed = wd.vector[label] != predict(wd.vector));
+        return Arrays.stream(Data).mapToDouble(WeightedData::getError).sum();
     }
 
-    public int predict(int[] x) {
+    public int predict(byte[] x) {
         double[] score = new double[labelMargin.length];
-        for (int i = 0; i < score.length; i++) {
+        for (byte i = 0; i < score.length; i++) {
             double likelihood = (1 - degree) * Math.log(labelMargin[i]);
-            for (int j = 0; j < neighbours.length; j++) {
-                HashMap<List<Integer>, Double> dist = labelPairMargin[j];
-                List<Integer> dom = new ArrayList<>();
-                for (int n : neighbours[j]) {
+            for (int j = 0; j < factors.length; j++) {
+                HashMap dist = labelPairMargin[j];
+                List<Byte> dom = new ArrayList<>();
+                for (int n : factors[j]) {
                     dom.add(x[n]);
                 }
                 dom.add(i);
-                Double v = dist.get(dom);
+                Double v = (Double) dist.get(dom);
+                //laplace smoothing
                 likelihood += v == null ? Math.log(dist.size() / (dist.size() + Data.length)) : Math.log(v);
             }
             score[i] = likelihood;
@@ -90,22 +91,20 @@ public class FactorGraph {
         return result;
     }
 
-
-    private int[][] getNeighbours() {
-        int[][] nb = new int[degree][f_size];
+    private int[][] getFactors() {
+        int[][] nb = new int[degree][leaf];
         Random rand = new Random();
-        List<Integer> nodes = new ArrayList<>(label);
-        for (int i = 0; i < label; i++) {
+        List<Integer> nodes = new ArrayList<>(domain.length - 1);
+        for (int i = 0; i < domain.length - 1; i++) {
             nodes.add(i);
         }
         for (int i = 0; i < degree; i++) {
-            for (int j = 0; j < f_size; j++) {
+            for (int j = 0; j < leaf; j++) {
                 int randomIndex = rand.nextInt(nodes.size());//out-of-bounds
                 nb[i][j] = nodes.get(randomIndex);
                 nodes.remove(randomIndex);
             }
         }
-
         return nb;
     }
 }

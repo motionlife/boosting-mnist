@@ -87,7 +87,7 @@ public class ChowLiu {
     private double errorRate() {
         double err = 0.0;
         for (WeightedData wd : Data) {
-            if (wd.getLabel() != predict(wd.vector)) {
+            if (wd.vector[label] != predict(wd.vector)) {
                 err += wd.weight;
                 wd.missed = true;
             }
@@ -95,7 +95,7 @@ public class ChowLiu {
         return err;
     }
 
-    public int predict(int[] x) {
+    public int predict(byte[] x) {
         double[] score = new double[labelMargin.length];
         for (int i = 0; i < score.length; i++) {
             double likelihood = (1 - degree) * Math.log(labelMargin[i]);

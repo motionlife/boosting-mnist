@@ -118,20 +118,36 @@ public class MnistReader {
         return sb.toString();
     }
 
-    public static int[][] toVectors(List<int[][]> images, int[] lables) {
+    public static byte[][] toVectors(List<int[][]> images, int[] labels) {
         int dim = 28;
         int vlen = dim * dim + 1;
-        int[][] result = new int[lables.length][vlen];
-        for (int i = 0; i < lables.length; i++) {
+        byte[][] result = new byte[labels.length][vlen];
+        for (int i = 0; i < labels.length; i++) {
             int[][] img = images.get(i);
             for (int j = 0; j < dim; j++) {
                 for (int k = 0; k < dim; k++) {
                     int scale = img[j][k];
                     //result[i][dim * j + k] = scale == 0 ? 0 : (scale < 7 ? 1 : (scale < 17 ? 2 : (scale < 47 ? 3 : (scale < 107 ? 4 : (scale < 197 ? 5 : 6)))));
-                    result[i][dim * j + k] = scale < 7 ? 0 : 1;
+                    result[i][dim * j + k] = (byte) (scale < 7 ? 0 : 1);
                 }
             }
-            result[i][vlen - 1] = lables[i];
+            result[i][vlen - 1] = (byte) labels[i];
+        }
+        return result;
+    }
+
+    public static byte[][] rowMajor(List<int[][]> images) {
+        int dim = 28;
+        byte[][] result = new byte[images.size()][dim * dim];
+        for (int i = 0; i < images.size(); i++) {
+            int[][] img = images.get(i);
+            for (int j = 0; j < dim; j++) {
+                for (int k = 0; k < dim; k++) {
+                    int scale = img[j][k];
+                    //result[i][dim * j + k] = scale == 0 ? 0 : (scale < 7 ? 1 : (scale < 17 ? 2 : (scale < 47 ? 3 : (scale < 107 ? 4 : (scale < 197 ? 5 : 6)))));
+                    result[i][dim * j + k] = (byte) (scale < 7 ? 0 : 1);
+                }
+            }
         }
         return result;
     }

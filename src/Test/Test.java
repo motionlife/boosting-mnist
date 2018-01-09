@@ -1,13 +1,9 @@
-package Test;
-
-import org.apache.commons.math3.distribution.MultivariateNormalDistribution;
-import org.apache.commons.math3.distribution.NormalDistribution;
-import org.apache.commons.math3.distribution.NormalDistributionTest;
+import mvn.MultivariateNormal;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.RealVector;
+import org.apache.commons.math3.linear.RealVectorAbstractTest;
 import org.apache.commons.math3.stat.correlation.Covariance;
-import org.apache.commons.math3.stat.correlation.CovarianceTest;
-import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 
 public class Test {
     public static void main(String args[]) {
@@ -49,9 +45,12 @@ public class Test {
         };
         RealMatrix matrix = createRealMatrix(longleyData, 16, 7);
         double[][] cov  = new Covariance(matrix).getCovarianceMatrix().getData();
-
-        MultivariateNormalDistribution mv = new MultivariateNormalDistribution(means, cov);
-        NormalDistribution normal = new NormalDistribution(0,1);
+        RealVector mu = new RealVectorAbstractTest.RealVectorTestImpl(means);
+        double[] lower = means;
+        double[] upper  = means;
+        MultivariateNormal mvn = new MultivariateNormal();
+        MultivariateNormal.CDFResult result = mvn.cdf(mu, matrix,lower,upper);
+        System.out.println("cdf = "+result.cdf+"\nerror="+result.cdfError+"\nConverged:"+result.converged);
     }
 
     static RealMatrix createRealMatrix(double[] data, int nRows, int nCols) {

@@ -19,12 +19,12 @@ public class CIFAR {
                 byte[] b = new byte[1024 * channel + 1];
                 inputStream.read(b, 1024 * channel, 1);
                 int[] buffer = new int[1024 * channel];
+                inputStream.skip(1024 * (3 - channel));
                 for (int itr = 0; itr < buffer.length; itr++) buffer[itr] = inputStream.read();
                 //inputStream.read(b, 0, 1024 * channel);
-                inputStream.skip(1024 * (3 - channel));
                 int[] dithered = twoToOne(dither(oneToTwo(buffer)));
                 for (int k = 0; k < b.length - 1; k++) {
-                    b[k] = (byte) (dithered[k] < 128 ? 0 : 1);
+                    b[k] = (byte) (dithered[k] == 0 ? 0 : 1);
                 }
                 dataset[i * 10000 + j] = new WeightedData(b, 1.0 / dataset.length);
             }
@@ -35,12 +35,12 @@ public class CIFAR {
             byte[] b = new byte[1024 * channel + 1];
             inputStream.read(b, 1024 * channel, 1);
             int[] buffer = new int[1024 * channel];
-            for (int itr = 0; itr < buffer.length; itr++) buffer[itr] = inputStream.read();
             //inputStream.read(b, 0, 1024 * channel);
             inputStream.skip(1024 * (3 - channel));
+            for (int itr = 0; itr < buffer.length; itr++) buffer[itr] = inputStream.read();
             int[] dithered = twoToOne(dither(oneToTwo(buffer)));
             for (int k = 0; k < b.length - 1; k++) {
-                b[k] = (byte) (dithered[k] < 128 ? 0 : 1);
+                b[k] = (byte) (dithered[k] == 0 ? 0 : 1);
             }
             test[i] = b;
         }
@@ -58,7 +58,7 @@ public class CIFAR {
         ArrayList<FactorGraph> models = new ArrayList<>(M);
         for (int i = 0; i < M; i++) {
             //System.out.println("Sum(weight)="+Arrays.stream(dataset).mapToDouble(d -> d.weight).sum());
-            FactorGraph model = new FactorGraph(dataset, domain, label, 20, 7, true);
+            FactorGraph model = new FactorGraph(dataset, domain, label, 17, 7, true);
             double e = model.error;
             model.alpha = Math.log((1 / e - 1) * (K - 1));
             Mnist.saveResult("error=" + e + ", alpha=" + model.alpha);

@@ -8,7 +8,6 @@ public class WeightedData {
     public int[] vector;
     public double weight;
     public boolean missed;
-
     WeightedData(int[] vector, double weight) {
         this.vector = vector;
         this.weight = weight;

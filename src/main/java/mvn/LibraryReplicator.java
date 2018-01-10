@@ -12,7 +12,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -57,9 +56,7 @@ public class LibraryReplicator<C> {
     }
 
     public LibraryReplicator(URL libraryResource, Class<C> interfaceClass) throws IOException {
-        //this(libraryResource, interfaceClass, Runtime.getRuntime().availableProcessors());
-        //todo not sure if this can achieve thread safe tinker with it later
-        this(libraryResource, interfaceClass, ForkJoinPool.getCommonPoolParallelism());
+        this(libraryResource, interfaceClass, Runtime.getRuntime().availableProcessors());
     }
 
     public C getProxiedInterface() {

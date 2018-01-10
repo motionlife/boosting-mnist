@@ -48,7 +48,7 @@ public class CIFAR {
         ArrayList<RandomFG> models = new ArrayList<>(M);
         for (int i = 0; i < M; i++) {
             //System.out.println("Sum(weight)="+Arrays.stream(dataset).mapToDouble(d -> d.weight).sum());
-            RandomFG model = new RandomFG(dataset, 7, 7);
+            RandomFG model = new RandomFG(dataset, 3, 7);
             models.add(model);
             Samme.saveResult("error=" + model.error + ", alpha=" + model.alpha);
 

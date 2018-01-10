@@ -59,20 +59,20 @@ public class RandomFG {
     int predict(int[] x) {
         double[] score = new double[labelMargin.length];
         for (int i = 0; i < score.length; i++) {
-            double pb = (1 - factors.length) * Math.log(labelMargin[i]);
-            for (int j = 0; j < factors.length; j++) {
-                double[] lower = new double[factors[j].length + 1];
-                double[] upper = new double[factors[j].length + 1];
-                for (int k = 0; k < factors[j].length; k++) {
+            int degree = factors.length;
+            double pb = (1 - degree) * Math.log(labelMargin[i]);
+            for (int j = 0; j < degree; j++) {
+                int dim = factors[j].length;
+                double[] lower = new double[dim + 1];
+                double[] upper = new double[dim + 1];
+                for (int k = 0; k < dim; k++) {
                     lower[k] = x[factors[j][k]] - 1;
                     upper[k] = x[factors[j][k]] + 1;
                 }
-                lower[lower.length - 1] = i - 1;
-                upper[upper.length - 1] = i + 1;
+                lower[dim] = i - 1;
+                upper[dim] = i + 1;
                 pb += Math.log(MultivariateNormal.DEFAULT_INSTANCE.cdf(labelLeafMargins[j].mu, labelLeafMargins[j].sigma, lower, upper).cdf);
-                //todo: non-thread safe
             }
-            System.out.println("p(y=" + i + ")=" + pb);
             score[i] = pb;
         }
 
@@ -108,7 +108,6 @@ class LabelLeafMargin {
         this.mu = mean;
         this.sigma = covariance;
     }
-
 
     static LabelLeafMargin getFromData(WeightedData[] data, int[] cols) {
         int dim = cols.length;

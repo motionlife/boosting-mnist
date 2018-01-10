@@ -17,7 +17,7 @@ public class MultivariateNormal {
         try {
             LibraryReplicator<MvnPackGenz> repl = new LibraryReplicator<>(
                     MvnPackGenz.class.getClassLoader().getResource(MvnPackGenz.MVNPACK_SO),
-                    MvnPackGenz.class); // FIXME: concurrency issues copies=number of threads
+                    MvnPackGenz.class);
             lib = repl.getProxiedInterface();
         } catch (IOException e) {
             throw new RuntimeException(e);

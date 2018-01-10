@@ -118,10 +118,10 @@ public class MnistReader {
         return sb.toString();
     }
 
-    public static byte[][] toVectors(List<int[][]> images, int[] labels) {
+    public static int[][] toVectors(List<int[][]> images, int[] labels) {
         int dim = 28;
         int vlen = dim * dim + 1;
-        byte[][] result = new byte[labels.length][vlen];
+        int[][] result = new int[labels.length][vlen];
         for (int i = 0; i < labels.length; i++) {
             int[][] img = images.get(i);
             for (int j = 0; j < dim; j++) {

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Mnist {
+public class Samme {
 
     private double correct;
 
@@ -16,17 +16,17 @@ public class Mnist {
         List<int[][]> train_imgs = MnistReader.getImages("data/MNIST/train-images-idx3-ubyte");
         int[] test_labels = MnistReader.getLabels("data/MNIST/t10k-labels-idx1-ubyte");
         List<int[][]> test_imgs = MnistReader.getImages("data/MNIST/t10k-images-idx3-ubyte");
-        byte[][] train = MnistReader.toVectors(train_imgs, train_labels);
-        byte[][] test = MnistReader.toVectors(test_imgs, test_labels);
+        int[][] train = MnistReader.toVectors(train_imgs, train_labels);
+        int[][] test = MnistReader.toVectors(test_imgs, test_labels);
 
         int label = 784;
         int k = 10;
         //define domain of all variables;
-        byte[] domain = new byte[label + 1];
+        int[] domain = new int[label + 1];
         for (int i = 0; i < label; i++) {
             domain[i] = 2;
         }
-        domain[label] = (byte) k;
+        domain[label] = (int) k;
 
         //initialize dataset
         WeightedData[] dataset = new WeightedData[train.length];
@@ -35,12 +35,12 @@ public class Mnist {
         }
 
         //boosting-SAMME
-        Mnist profile = new Mnist();
+        Samme profile = new Samme();
         int M = 1000;
         ArrayList<FactorGraph> models = new ArrayList<>(M);
         for (int i = 0; i < M; i++) {
             //System.out.println("Sum(weight)="+Arrays.stream(training).mapToDouble(d -> d.weight).sum());
-            FactorGraph model = new FactorGraph(dataset, domain, label, 11, 11, true);
+            FactorGraph model = new FactorGraph(dataset, domain, label, 11, 11);
             double e = model.error;
             model.alpha = Math.log((1 / e - 1) * (k - 1));
             saveResult("error=" + e + ", alpha=" + model.alpha);
@@ -55,7 +55,7 @@ public class Mnist {
 
     }
 
-    public void benchmark(byte[][] test, ArrayList<FactorGraph> models, int k, int l) {
+    public void benchmark(int[][] test, ArrayList<FactorGraph> models, int k, int l) {
         correct = 0;
         Arrays.stream(test).parallel().forEach(d -> {
             double[] votes = new double[k];

@@ -3,16 +3,18 @@
  * Copyright belongs to haoxiong, Email: haoxiong@outlook.com
  */
 public class WeightedData {
-    public byte[] vector;
+    static int label;
+    static int K;
+    public int[] vector;
     public double weight;
     public boolean missed;
 
-    public WeightedData(byte[] vector, double weight) {
+    WeightedData(int[] vector, double weight) {
         this.vector = vector;
         this.weight = weight;
     }
 
-    double getError() {
+    double contributeErrorRate() {
         return missed ? weight : 0;
     }
 }

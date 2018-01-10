@@ -4,7 +4,6 @@ import com.sun.jna.ptr.DoubleByReference;
 import com.sun.jna.ptr.IntByReference;
 import org.apache.commons.math3.exception.ConvergenceException;
 import org.apache.commons.math3.linear.RealMatrix;
-import org.apache.commons.math3.linear.RealVector;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -104,10 +103,10 @@ public class MultivariateNormal {
         }
     }
 
-    public CDFResult cdf(RealVector mean, RealMatrix sigma, double[] lower, double[] upper) {
+    public CDFResult cdf(double[] mean, RealMatrix sigma, double[] lower, double[] upper) {
         CDFResult result = null;
         int iter = 0;
-        int maxpts = maxptsMultiplier * mean.getDimension();
+        int maxpts = maxptsMultiplier * mean.length;
         do {
             if (++iter > MAX_RETRIES || maxpts < 0) throw new ConvergenceException();
 //			if( iter > 0 ) System.out.println("Trying again with " + maxpts);
@@ -117,7 +116,7 @@ public class MultivariateNormal {
         return result;
     }
 
-    static CDFResult cdf(RealVector mean, RealMatrix sigma, double[] lower, double[] upper,
+    static CDFResult cdf(double[] mean, RealMatrix sigma, double[] lower, double[] upper,
                          int maxPts, double abseps, double releps) {
         // Copy bounds arrays because we modify them
         double[] adjLower = lower.clone();
@@ -133,18 +132,16 @@ public class MultivariateNormal {
         DoubleByReference error = new DoubleByReference(0);
         DoubleByReference value = new DoubleByReference(0);
         IntByReference inform = new IntByReference(0);
-
         lib.mvndst_(new IntByReference(n), adjLower, adjUpper, infin, correl,
                 maxpts, abseps_ref, releps_ref, error, value, inform);
 
         int exitCode = inform.getValue();
         if (exitCode == 2) throw new RuntimeException("Dimension error for MVN");
-
         if (Double.isInfinite(value.getValue()) || Double.isNaN(value.getValue())) {
             StringBuilder sb = new StringBuilder();
             sb.append("Error computing CDF; possible concurrent thread access\n");
             sb.append("inform is ").append(exitCode).append("\n");
-            sb.append("Mean: ").append(Arrays.toString(mean.toArray())).append("\n");
+            sb.append("Mean: ").append(Arrays.toString(mean)).append("\n");
             sb.append("Sigma: ").append(Arrays.deepToString(sigma.getData())).append("\n");
             sb.append("Lower: ").append(Arrays.toString(lower)).append("\n");
             sb.append("Upper: ").append(Arrays.toString(upper)).append("\n");
@@ -155,10 +152,10 @@ public class MultivariateNormal {
         return new CDFResult(value.getValue(), error.getValue(), exitCode == 0);
     }
 
-    public ExpResult exp(RealVector mean, RealMatrix sigma, double[] lower, double[] upper) {
+    public ExpResult exp(double[] mean, RealMatrix sigma, double[] lower, double[] upper) {
         ExpResult result = null;
         int iter = 0;
-        int maxpts = maxptsMultiplier * mean.getDimension();
+        int maxpts = maxptsMultiplier * mean.length;
         do {
             if (++iter > MAX_RETRIES || maxpts < 0) throw new ConvergenceException();
 //			if( iter > 0 ) System.out.println("Trying again with " + maxpts);
@@ -168,7 +165,7 @@ public class MultivariateNormal {
         return result;
     }
 
-    static ExpResult exp(RealVector mean, RealMatrix sigma, double[] lower, double[] upper,
+    static ExpResult exp(double[] mean, RealMatrix sigma, double[] lower, double[] upper,
                          int maxPts, double abseps, double releps) {
         // Copy bounds arrays because we modify them
         double[] adjLower = lower.clone();
@@ -202,17 +199,17 @@ public class MultivariateNormal {
          * very important since the computation is on variance 1 normal!
          */
         for (int i = 0; i < n; i++) {
-            result[i] = result[i] * sds[i] + mean.getEntry(i);
+            result[i] = result[i] * sds[i] + mean[i];
             resultErrors[i] = resultErrors[i] * sds[i];
         }
 
         return new ExpResult(values[0], errors[0], result, resultErrors, exitCode == 0);
     }
 
-    public EX2Result eX2(RealVector mean, RealMatrix sigma, double[] lower, double[] upper) {
+    public EX2Result eX2(double[] mean, RealMatrix sigma, double[] lower, double[] upper) {
         EX2Result result = null;
         int iter = 0;
-        int maxpts = maxptsMultiplier * mean.getDimension();
+        int maxpts = maxptsMultiplier * mean.length;
         do {
             if (++iter > MAX_RETRIES || maxpts < 0) throw new ConvergenceException();
 //			if( iter > 0 ) System.out.println("Trying again with " + maxpts);
@@ -222,7 +219,7 @@ public class MultivariateNormal {
         return result;
     }
 
-    static EX2Result eX2(RealVector mean, RealMatrix sigma, double[] lower, double[] upper,
+    static EX2Result eX2(double[] mean, RealMatrix sigma, double[] lower, double[] upper,
                          int maxPts, double abseps, double releps) {
         // Copy bounds arrays because we modify them
         double[] adjLower = lower.clone();
@@ -261,7 +258,7 @@ public class MultivariateNormal {
          */
         for (int i = 0; i < n; i++) {
             double var_i = sds[i] * sds[i];
-            double mu = mean.getEntry(i);
+            double mu = mean[i];
             double mu_sq = mu * mu;
             /*
              * Y = sX + u
@@ -275,16 +272,16 @@ public class MultivariateNormal {
              * E[Y] = E[sX + u]
              * Now we can modify them
              */
-            expResult[i] = expResult[i] * sds[i] + mean.getEntry(i);
+            expResult[i] = expResult[i] * sds[i] + mean[i];
             expErrors[i] = expErrors[i] * sds[i];
         }
 
         return new EX2Result(values[0], errors[0], expResult, expErrors, eX2Result, eX2Errors, exitCode == 0);
     }
 
-    private static int checkErrors(RealVector mean, RealMatrix sigma,
+    private static int checkErrors(double[] mean, RealMatrix sigma,
                                    double[] lower, double[] upper) {
-        int n = mean.getDimension();
+        int n = mean.length;
 
         if (n != sigma.getColumnDimension() || !sigma.isSquare())
             throw new IllegalArgumentException("mean and covar dimensions differ");
@@ -294,17 +291,17 @@ public class MultivariateNormal {
         return n;
     }
 
-    private static double[] getCorrelAdjustLimits(RealVector mean, RealMatrix sigma,
+    private static double[] getCorrelAdjustLimits(double[] mean, RealMatrix sigma,
                                                   double[] lower, double[] upper, double[] sd) {
-        int n = mean.getDimension();
+        int n = mean.length;
 
         for (int i = 0; i < n; i++) {
             sd[i] = Math.sqrt(sigma.getEntry(i, i));
 
             if (lower[i] != Double.NEGATIVE_INFINITY)
-                lower[i] = (lower[i] - mean.getEntry(i)) / sd[i];
+                lower[i] = (lower[i] - mean[i]) / sd[i];
             if (upper[i] != Double.NEGATIVE_INFINITY)
-                upper[i] = (upper[i] - mean.getEntry(i)) / sd[i];
+                upper[i] = (upper[i] - mean[i]) / sd[i];
         }
 
         double[] correl = new double[n * (n - 1) / 2];

@@ -7,7 +7,7 @@ import java.util.*;
  */
 public class FactorGraph {
     private WeightedData[] Data;
-    private byte[] domain;
+    private int[] domain;
     private int[][] factors;
     private int label;
     private int degree;
@@ -17,8 +17,7 @@ public class FactorGraph {
     public double error;
     public double alpha;
 
-    FactorGraph(WeightedData[] Data, byte[] domain, int label, int degree, int leaf, boolean discrete) {
-        if (discrete) {
+    FactorGraph(WeightedData[] Data, int[] domain, int label, int degree, int leaf) {
             this.Data = Data;
             this.domain = domain;
             this.label = label;
@@ -28,10 +27,6 @@ public class FactorGraph {
             this.labelMargin = getMargin(label);
             this.labelPairMargin = getLabelPairMargin();
             this.error = errorRate();
-        } else {
-            // consider continuous distribution
-
-        }
     }
 
     private double[] getMargin(int u) {
@@ -45,11 +40,11 @@ public class FactorGraph {
     private HashMap[] getLabelPairMargin() {
         HashMap[] dist = new HashMap[degree];
         for (int i = 0; i < degree; i++) {
-            dist[i] = new HashMap<List<Byte>, Double>();
+            dist[i] = new HashMap<List<Integer>, Double>();
         }
         Arrays.stream(Data).forEach(wd -> {
             for (int i = 0; i < factors.length; i++) {
-                List<Byte> dom = new ArrayList<>();
+                List<Integer> dom = new ArrayList<>();
                 for (int n : factors[i]) {
                     dom.add(wd.vector[n]);
                 }
@@ -63,16 +58,16 @@ public class FactorGraph {
 
     private double errorRate() {
         Arrays.stream(Data).parallel().forEach(wd -> wd.missed = wd.vector[label] != predict(wd.vector));
-        return Arrays.stream(Data).mapToDouble(WeightedData::getError).sum();
+        return Arrays.stream(Data).mapToDouble(WeightedData::contributeErrorRate).sum();
     }
 
-    public int predict(byte[] x) {
+    public int predict(int[] x) {
         double[] score = new double[labelMargin.length];
-        for (byte i = 0; i < score.length; i++) {
+        for (int i = 0; i < score.length; i++) {
             double likelihood = (1 - degree) * Math.log(labelMargin[i]);
             for (int j = 0; j < factors.length; j++) {
                 HashMap dist = labelPairMargin[j];
-                List<Byte> dom = new ArrayList<>();
+                List<Integer> dom = new ArrayList<>();
                 for (int n : factors[j]) {
                     dom.add(x[n]);
                 }

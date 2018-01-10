@@ -44,7 +44,7 @@ public class CIFAR {
 
         CIFAR cifar = new CIFAR();
 
-        int M = 500;
+        int M = 700;
         ArrayList<RandomFG> models = new ArrayList<>(M);
         for (int i = 0; i < M; i++) {
             //System.out.println("Sum(weight)="+Arrays.stream(dataset).mapToDouble(d -> d.weight).sum());

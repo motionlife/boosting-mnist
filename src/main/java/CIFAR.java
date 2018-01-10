@@ -1,5 +1,7 @@
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -12,34 +14,37 @@ public class CIFAR {
     private double correct;
 
     public static void main(String args[]) throws IOException {
-        int channel = 1;
+        //int channel = 1;
         WeightedData[] dataset = new WeightedData[50000];
-        int[][] test = new int[10000][1024 * channel + 1];
+        int[][] test = new int[10000][1025];
 
         for (int i = 0; i < 5; i++) {
-            FileInputStream inputStream = new FileInputStream("./data/cifar-10-bin/data_batch_" + (i + 1) + ".bin");
+            final FileChannel channel = new FileInputStream("./data/cifar-10-bin/data_batch_" + (i + 1) + ".bin").getChannel();
+            MappedByteBuffer buffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
             for (int j = 0; j < 10000; j++) {
-                int[] buffer = new int[1024 * channel + 1];
-                buffer[1024 * channel] = inputStream.read();
-                for (int ptr = 0; ptr < 1024 * channel; ptr++) buffer[ptr] = inputStream.read();
-                inputStream.skip(1024 * (3 - channel));
-                dataset[i * 10000 + j] = new WeightedData(buffer, 1.0 / dataset.length);
+                int[] img = new int[1025];
+                img[1024] = buffer.get();
+                for (int ptr = 0; ptr < 3072; ptr++) img[ptr % 1024] += buffer.get() & 0xff;
+                for (int k = 0; k < 1024; k++) img[k] /= 3;
+                dataset[i * 10000 + j] = new WeightedData(img, 1.0 / dataset.length);
             }
+            channel.close();
         }
 
-        FileInputStream inputStream = new FileInputStream("./data/cifar-10-bin/test_batch.bin");
+        final FileChannel channel = new FileInputStream("./data/cifar-10-bin/test_batch.bin").getChannel();
+        MappedByteBuffer buffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
         for (int i = 0; i < 10000; i++) {
-            test[i][1024 * channel] = inputStream.read();
-            for (int ptr = 0; ptr < 1024 * channel; ptr++) test[i][ptr] = inputStream.read();
-            inputStream.skip(1024 * (3 - channel));
+            test[i][1024] = buffer.get();
+            for (int ptr = 0; ptr < 3072; ptr++) test[i][ptr % 1024] += buffer.get() & 0xff;
+            for (int k = 0; k < 1024; k++) test[i][k] /= 3;
         }
 
-        WeightedData.label = 1024 * channel;
+        WeightedData.label = 1024;
         WeightedData.K = 10;
 
         CIFAR cifar = new CIFAR();
 
-        int M = 1000;
+        int M = 500;
         ArrayList<RandomFG> models = new ArrayList<>(M);
         for (int i = 0; i < M; i++) {
             //System.out.println("Sum(weight)="+Arrays.stream(dataset).mapToDouble(d -> d.weight).sum());
@@ -51,7 +56,7 @@ public class CIFAR {
         }
     }
 
-    void benchmark(int[][] test, ArrayList<RandomFG> models, int k, int l) {
+    private void benchmark(int[][] test, ArrayList<RandomFG> models, int k, int l) {
         correct = 0;
         Arrays.stream(test).parallel().forEach(d -> {
             double[] votes = new double[k];

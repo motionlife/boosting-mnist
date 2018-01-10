@@ -20,12 +20,15 @@ public class RandomFG {
     double alpha;
 
     public RandomFG(WeightedData[] data, int degree, int leaf) {
-
+        System.out.println("Calculating label margin...");
         this.labelMargin = getLabelMargin(data);
         this.factors = getFactors(data[0].vector.length, degree, leaf);
+        System.out.println("Calculating leaf margins...");
         this.labelLeafMargins = getLabelLeafMargin(data);
+        System.out.println("Calculating error rate (parallel)...");
         this.error = errorRate(data);
         this.alpha = Math.log((1 / error - 1) * (WeightedData.K - 1));
+        System.out.println("Updating weights...");
         for (WeightedData wd : data) {
             wd.weight = wd.missed ? (wd.weight * (WeightedData.K - 1) / (WeightedData.K * error)) : (wd.weight / (WeightedData.K * (1 - error)));
             wd.missed = false;
@@ -66,9 +69,10 @@ public class RandomFG {
                 }
                 lower[lower.length - 1] = i - 1;
                 upper[upper.length - 1] = i + 1;
-                pb += MultivariateNormal.DEFAULT_INSTANCE.cdf(labelLeafMargins[j].mu, labelLeafMargins[j].sigma,lower, upper).cdf;
+                pb += Math.log(MultivariateNormal.DEFAULT_INSTANCE.cdf(labelLeafMargins[j].mu, labelLeafMargins[j].sigma, lower, upper).cdf);
                 //todo: non-thread safe
             }
+            System.out.println("p(y=" + i + ")=" + pb);
             score[i] = pb;
         }
 

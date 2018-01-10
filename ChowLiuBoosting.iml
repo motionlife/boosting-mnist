@@ -12,9 +12,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="commons-math3-3.6" level="project" />
     <orderEntry type="library" name="jna-3.0.9" level="project" />
     <orderEntry type="library" name="guava-23.6-jre" level="project" />
     <orderEntry type="library" name="jcl-over-slf4j-1.7.25" level="project" />
+    <orderEntry type="library" name="commons-math3-3.6.1" level="project" />
   </component>
 </module>

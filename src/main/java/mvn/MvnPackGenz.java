@@ -11,7 +11,7 @@ import com.sun.jna.ptr.IntByReference;
  */
 public interface MvnPackGenz extends Library {
 
-    String MVNPACK_SO = "mvnpack.dll";
+    String MVNPACK_SO = "mvnpack.so";
 
     /**
      * See http://www.math.wsu.edu/faculty/genz/software/fort77/mvtdstpack.f

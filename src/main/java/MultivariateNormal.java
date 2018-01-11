@@ -1,4 +1,3 @@
-package mvn;
 
 import com.sun.jna.ptr.DoubleByReference;
 import com.sun.jna.ptr.IntByReference;

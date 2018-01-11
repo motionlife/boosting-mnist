@@ -164,10 +164,8 @@
   
   <!-- Project Libraries -->
   
-  <path id="library.commons-math3-3.6.classpath">
-    <fileset dir="${basedir}/../../Documents/commons-math3-3.6.1">
-      <patternset refid="library.patterns"/>
-    </fileset>
+  <path id="library.commons-math3-3.6.1.classpath">
+    <pathelement location="${basedir}/lib/commons-math3-3.6.1.jar"/>
   </path>
   
   <path id="library.guava-23.6-jre.classpath">
@@ -197,143 +195,7 @@
   
   <!-- Modules -->
   
-  
-  <!-- Module ChowLiuBoosting -->
-  
-  <dirname property="module.chowliuboosting.basedir" file="${ant.file}"/>
-  
-  
-  <property name="module.jdk.home.chowliuboosting" value="${project.jdk.home}"/>
-  <property name="module.jdk.bin.chowliuboosting" value="${project.jdk.bin}"/>
-  <property name="module.jdk.classpath.chowliuboosting" value="${project.jdk.classpath}"/>
-  
-  <property name="compiler.args.chowliuboosting" value="-encoding UTF-8 -source 1.8 -target 1.8 ${compiler.args}"/>
-  
-  <property name="chowliuboosting.output.dir" value="${module.chowliuboosting.basedir}/out/production/ChowLiuBoosting"/>
-  <property name="chowliuboosting.testoutput.dir" value="${module.chowliuboosting.basedir}/out/test/ChowLiuBoosting"/>
-  
-  <path id="chowliuboosting.module.bootclasspath">
-    <!-- Paths to be included in compilation bootclasspath -->
-  </path>
-  
-  <path id="chowliuboosting.module.production.classpath">
-    <path refid="${module.jdk.classpath.chowliuboosting}"/>
-    <path refid="library.commons-math3-3.6.classpath"/>
-    <path refid="library.jna-3.0.9.classpath"/>
-    <path refid="library.guava-23.6-jre.classpath"/>
-    <path refid="library.jcl-over-slf4j-1.7.25.classpath"/>
-  </path>
-  
-  <path id="chowliuboosting.runtime.production.module.classpath">
-    <pathelement location="${chowliuboosting.output.dir}"/>
-    <path refid="library.commons-math3-3.6.classpath"/>
-    <path refid="library.jna-3.0.9.classpath"/>
-    <path refid="library.guava-23.6-jre.classpath"/>
-    <path refid="library.jcl-over-slf4j-1.7.25.classpath"/>
-  </path>
-  
-  <path id="chowliuboosting.module.classpath">
-    <path refid="${module.jdk.classpath.chowliuboosting}"/>
-    <pathelement location="${chowliuboosting.output.dir}"/>
-    <path refid="library.commons-math3-3.6.classpath"/>
-    <path refid="library.jna-3.0.9.classpath"/>
-    <path refid="library.guava-23.6-jre.classpath"/>
-    <path refid="library.jcl-over-slf4j-1.7.25.classpath"/>
-  </path>
-  
-  <path id="chowliuboosting.runtime.module.classpath">
-    <pathelement location="${chowliuboosting.testoutput.dir}"/>
-    <pathelement location="${chowliuboosting.output.dir}"/>
-    <path refid="library.commons-math3-3.6.classpath"/>
-    <path refid="library.jna-3.0.9.classpath"/>
-    <path refid="library.guava-23.6-jre.classpath"/>
-    <path refid="library.jcl-over-slf4j-1.7.25.classpath"/>
-  </path>
-  
-  
-  <patternset id="excluded.from.module.chowliuboosting">
-    <patternset refid="ignored.files"/>
-  </patternset>
-  
-  <patternset id="excluded.from.compilation.chowliuboosting">
-    <patternset refid="excluded.from.module.chowliuboosting"/>
-  </patternset>
-  
-  <path id="chowliuboosting.module.sourcepath">
-    <dirset dir="${module.chowliuboosting.basedir}">
-      <include name="src"/>
-      <include name="src/main/resources"/>
-      <include name="src/main/java"/>
-      <include name="src/main"/>
-      <include name="src/main/fortran"/>
-    </dirset>
-  </path>
-  
-  <path id="chowliuboosting.module.test.sourcepath">
-    <dirset dir="${module.chowliuboosting.basedir}">
-      <include name="src/test"/>
-    </dirset>
-  </path>
-  
-  
-  <target name="compile.module.chowliuboosting" depends="compile.module.chowliuboosting.production,compile.module.chowliuboosting.tests" description="Compile module ChowLiuBoosting"/>
-  
-  <target name="compile.module.chowliuboosting.production" depends="register.custom.compilers" description="Compile module ChowLiuBoosting; production classes">
-    <mkdir dir="${chowliuboosting.output.dir}"/>
-    <javac2 destdir="${chowliuboosting.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.chowliuboosting}/javac">
-      <compilerarg line="${compiler.args.chowliuboosting}"/>
-      <bootclasspath refid="chowliuboosting.module.bootclasspath"/>
-      <classpath refid="chowliuboosting.module.production.classpath"/>
-      <src refid="chowliuboosting.module.sourcepath"/>
-      <patternset refid="excluded.from.compilation.chowliuboosting"/>
-    </javac2>
-    
-    <copy todir="${chowliuboosting.output.dir}">
-      <fileset dir="${module.chowliuboosting.basedir}/src">
-        <patternset refid="compiler.resources"/>
-        <type type="file"/>
-      </fileset>
-      <fileset dir="${module.chowliuboosting.basedir}/src/main/resources">
-        <patternset refid="compiler.resources"/>
-        <type type="file"/>
-      </fileset>
-      <fileset dir="${module.chowliuboosting.basedir}/src/main/java">
-        <patternset refid="compiler.resources"/>
-        <type type="file"/>
-      </fileset>
-      <fileset dir="${module.chowliuboosting.basedir}/src/main">
-        <patternset refid="compiler.resources"/>
-        <type type="file"/>
-      </fileset>
-      <fileset dir="${module.chowliuboosting.basedir}/src/main/fortran">
-        <patternset refid="compiler.resources"/>
-        <type type="file"/>
-      </fileset>
-    </copy>
-  </target>
-  
-  <target name="compile.module.chowliuboosting.tests" depends="register.custom.compilers,compile.module.chowliuboosting.production" description="compile module ChowLiuBoosting; test classes" unless="skip.tests">
-    <mkdir dir="${chowliuboosting.testoutput.dir}"/>
-    <javac2 destdir="${chowliuboosting.testoutput.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.chowliuboosting}/javac">
-      <compilerarg line="${compiler.args.chowliuboosting}"/>
-      <bootclasspath refid="chowliuboosting.module.bootclasspath"/>
-      <classpath refid="chowliuboosting.module.classpath"/>
-      <src refid="chowliuboosting.module.test.sourcepath"/>
-      <patternset refid="excluded.from.compilation.chowliuboosting"/>
-    </javac2>
-    
-    <copy todir="${chowliuboosting.testoutput.dir}">
-      <fileset dir="${module.chowliuboosting.basedir}/src/test">
-        <patternset refid="compiler.resources"/>
-        <type type="file"/>
-      </fileset>
-    </copy>
-  </target>
-  
-  <target name="clean.module.chowliuboosting" description="cleanup module">
-    <delete dir="${chowliuboosting.output.dir}"/>
-    <delete dir="${chowliuboosting.testoutput.dir}"/>
-  </target>
+  <import file="${basedir}/module_chowliuboosting.xml"/>
   
   <target name="init" description="Build initialization">
     <!-- Perform any build initialization in this target -->

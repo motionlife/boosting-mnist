@@ -1,4 +1,3 @@
-package mvn;
 
 import com.sun.jna.Library;
 import com.sun.jna.ptr.DoubleByReference;
@@ -11,7 +10,7 @@ import com.sun.jna.ptr.IntByReference;
  */
 public interface MvnPackGenz extends Library {
 
-    String MVNPACK_SO = "mvnpack.so";
+    String MVNPACK_SO = "mvnpack.dll";
 
     /**
      * See http://www.math.wsu.edu/faculty/genz/software/fort77/mvtdstpack.f

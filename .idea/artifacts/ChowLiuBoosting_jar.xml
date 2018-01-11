@@ -1,0 +1,18 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ChowLiuBoosting:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/ChowLiuBoosting_jar</output-path>
+    <root id="archive" name="ChowLiuBoosting.jar">
+      <element id="module-output" name="ChowLiuBoosting" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/slf4j-api-1.7.25.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/slf4j-simple-1.7.25.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/commons-math3-3.6.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/jna-3.0.9.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/lib/guava-23.6-jre.jar" path-in-jar="/" />
+      <element id="library" level="project" name="commons-math3-3.6.1" />
+      <element id="library" level="project" name="guava-23.6-jre" />
+      <element id="library" level="project" name="jcl-over-slf4j-1.7.25" />
+      <element id="library" level="project" name="jna-3.0.9" />
+      <element id="file-copy" path="$PROJECT_DIR$/src/main/resources/mvnpack.so" />
+    </root>
+  </artifact>
+</component>

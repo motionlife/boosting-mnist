@@ -14,12 +14,12 @@ public class CIFAR {
     private double correct;
 
     public static void main(String args[]) throws IOException {
-        //int channel = 1;
+        String path = "C:\\Users\\HaoXiong\\IdeaProjects\\ChowLiuBoosting";
         WeightedData[] dataset = new WeightedData[50000];
         int[][] test = new int[10000][1025];
 
         for (int i = 0; i < 5; i++) {
-            final FileChannel channel = new FileInputStream("./data/cifar-10-bin/data_batch_" + (i + 1) + ".bin").getChannel();
+            final FileChannel channel = new FileInputStream(path + "/data/cifar-10-bin/data_batch_" + (i + 1) + ".bin").getChannel();
             MappedByteBuffer buffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
             for (int j = 0; j < 10000; j++) {
                 int[] img = new int[1025];
@@ -31,7 +31,7 @@ public class CIFAR {
             channel.close();
         }
 
-        final FileChannel channel = new FileInputStream("./data/cifar-10-bin/test_batch.bin").getChannel();
+        final FileChannel channel = new FileInputStream(path + "/data/cifar-10-bin/test_batch.bin").getChannel();
         MappedByteBuffer buffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
         for (int i = 0; i < 10000; i++) {
             test[i][1024] = buffer.get();
@@ -48,7 +48,7 @@ public class CIFAR {
         ArrayList<RandomFG> models = new ArrayList<>(M);
         for (int i = 0; i < M; i++) {
             //System.out.println("Sum(weight)="+Arrays.stream(dataset).mapToDouble(d -> d.weight).sum());
-            RandomFG model = new RandomFG(dataset, 3, 7);
+            RandomFG model = new RandomFG(dataset, 7, 7);
             models.add(model);
             Samme.saveResult("error=" + model.error + ", alpha=" + model.alpha);
 

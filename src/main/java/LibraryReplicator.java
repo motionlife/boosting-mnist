@@ -1,4 +1,3 @@
-package mvn;
 
 import com.google.common.io.Files;
 import com.sun.jna.Native;

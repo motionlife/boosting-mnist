@@ -15,7 +15,7 @@ public class CIFAR {
 
     public static void main(String args[]) throws IOException {
         String path = System.getProperty("os.name").toLowerCase().contains("win") ?
-                "C:/Users/HaoXiong/IdeaProjects/ChowLiuBoosting" : "/people/cs/h/hxx160130/boosting";
+                "C:/Users/HaoXiong/IdeaProjects/ChowLiuBoosting" : System.getProperty("user.dir");
         WeightedData[] dataset = new WeightedData[50000];
         int[][] test = new int[10000][1025];
 

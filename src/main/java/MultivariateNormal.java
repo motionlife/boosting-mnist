@@ -15,8 +15,7 @@ public class MultivariateNormal {
     static {
         try {
             LibraryReplicator<MvnPackGenz> repl = new LibraryReplicator<>(
-                    MvnPackGenz.class.getClassLoader().getResource(MvnPackGenz.MVNPACK_SO),
-                    MvnPackGenz.class);
+                    MvnPackGenz.class.getClassLoader().getResourceAsStream(MvnPackGenz.MVNPACK_SO), MvnPackGenz.class);
             lib = repl.getProxiedInterface();
         } catch (IOException e) {
             throw new RuntimeException(e);

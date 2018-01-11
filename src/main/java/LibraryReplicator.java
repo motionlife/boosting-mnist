@@ -1,15 +1,16 @@
-
-import com.google.common.io.Files;
 import com.sun.jna.Native;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -27,25 +28,20 @@ public class LibraryReplicator<C> {
     final C proxiedInterface;
 
     @SuppressWarnings("unchecked")
-    public LibraryReplicator(URL libraryResource, Class<C> interfaceClass, int copies) throws IOException {
+    public LibraryReplicator(InputStream resource, Class<C> interfaceClass, int copies) throws IOException {
         if (!interfaceClass.isInterface())
             throw new RuntimeException(interfaceClass + "is not a valid interface to map to the library.");
-        logger = LoggerFactory.getLogger(
-                this.getClass().getSimpleName() + "-" + interfaceClass.getSimpleName());
-
+        logger = LoggerFactory.getLogger(this.getClass().getSimpleName() + "-" + interfaceClass.getSimpleName());
         libQueue = new LinkedBlockingQueue<>(copies);
         this.interfaceClass = interfaceClass;
-
-        // Create copies of the file and map them to interfaces
-        String orig = libraryResource.getFile();
-        File origFile = new File(orig);
+        String dir = System.getProperty("user.dir") + "/";
         for (int i = 0; i < copies; i++) {
-            File copy = new File(orig + "." + i);
-            Files.copy(origFile, copy);
-
-            C libCopy = (C) Native.loadLibrary(copy.getPath(), interfaceClass);
+            File copy = new File(MvnPackGenz.MVNPACK_SO + "." + i);
+            Files.copy(resource, copy.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            C libCopy = (C) Native.loadLibrary(dir + copy.getPath(), interfaceClass);
             logger.debug("{} mapped to {}", libCopy, copy);
             libQueue.offer(libCopy); // This should never fail
+            if (i < copies - 1) resource = new FileInputStream(copy);
         }
 
         proxiedInterface = (C) Proxy.newProxyInstance(
@@ -54,8 +50,8 @@ public class LibraryReplicator<C> {
                 new BlockingInvocationHandler());
     }
 
-    public LibraryReplicator(URL libraryResource, Class<C> interfaceClass) throws IOException {
-        this(libraryResource, interfaceClass, Runtime.getRuntime().availableProcessors());
+    public LibraryReplicator(InputStream resource, Class<C> interfaceClass) throws IOException {
+        this(resource, interfaceClass, Thread.activeCount());
     }
 
     public C getProxiedInterface() {

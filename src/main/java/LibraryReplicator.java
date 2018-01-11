@@ -36,7 +36,7 @@ public class LibraryReplicator<C> {
         this.interfaceClass = interfaceClass;
         String dir = System.getProperty("user.dir") + "/";
         for (int i = 0; i < copies; i++) {
-            File copy = new File(MvnPackGenz.MVNPACK_SO + "." + i);
+            File copy = new File(MvnPackGenz.MVNPACK_LIB + "." + i);
             Files.copy(resource, copy.toPath(), StandardCopyOption.REPLACE_EXISTING);
             C libCopy = (C) Native.loadLibrary(dir + copy.getPath(), interfaceClass);
             logger.debug("{} mapped to {}", libCopy, copy);

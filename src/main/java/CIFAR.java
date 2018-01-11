@@ -14,8 +14,8 @@ public class CIFAR {
     private double correct;
 
     public static void main(String args[]) throws IOException {
-        String path = "C:\\Users\\HaoXiong\\IdeaProjects\\ChowLiuBoosting";
-        // String path = "/people/cs/h/hxx160130/boosting";
+        String path = System.getProperty("os.name").toLowerCase().indexOf("win") > 0 ?
+                "C:/Users/HaoXiong/IdeaProjects/ChowLiuBoosting" : "/people/cs/h/hxx160130/boosting";
         WeightedData[] dataset = new WeightedData[50000];
         int[][] test = new int[10000][1025];
 

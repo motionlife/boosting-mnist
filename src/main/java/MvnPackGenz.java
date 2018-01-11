@@ -10,7 +10,7 @@ import com.sun.jna.ptr.IntByReference;
  */
 public interface MvnPackGenz extends Library {
 
-    String MVNPACK_LIB = System.getProperty("os.name").toLowerCase().indexOf("win") > 0 ? "mvnpack.dll" : "mvnpack.so";
+    String MVNPACK_LIB = System.getProperty("os.name").toLowerCase().contains("win") ? "mvnpack.dll" : "mvnpack.so";
 
     /**
      * See http://www.math.wsu.edu/faculty/genz/software/fort77/mvtdstpack.f

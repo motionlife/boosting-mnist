@@ -15,6 +15,7 @@ public class CIFAR {
 
     public static void main(String args[]) throws IOException {
         String path = "C:\\Users\\HaoXiong\\IdeaProjects\\ChowLiuBoosting";
+        // String path = "/people/cs/h/hxx160130/boosting";
         WeightedData[] dataset = new WeightedData[50000];
         int[][] test = new int[10000][1025];
 
